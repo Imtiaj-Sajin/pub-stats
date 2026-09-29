@@ -36,6 +36,19 @@ SUBMISSION DATES: NOT available anywhere for a manuscript still in progress (Edi
   practice is almost every row in a scan near the current frontier, since those haven't
   been published yet.
 
+  BOTTOM LINE: submission dates are effectively USELESS for the recent in-progress
+  manuscripts the user actually cares about (they have no DOI). The kept "Submitted"
+  column is real but will show "—" for nearly everything. For any time/prediction
+  analysis, use the MANUSCRIPT ID as the x-axis instead: IDs are sequential, so a higher
+  number = later submission. That is what the Patterns charts do.
+
+PATTERNS / CHARTS (public/index.html, all inline SVG, no libs):
+  - "Stage by ID" and "Outcome by ID band" operate on the RUN SELECTED IN THE SIDEBAR
+    (state.currentRun, set by showRun). x-axis = manuscript number. These show the
+    processing "wave" and how outcome composition shifts from oldest to newest IDs.
+  - "Manuscript timeline" and "Activity over time" are cross-run (need multiple saved runs
+    over different days to be meaningful).
+
 TOOLING (this folder):
   server.js + public/index.html   - local web dashboard. Run `npm start` (or `node server.js`), then open
                                      http://localhost:5175. Enter a start ID, click "Run scan" — it streams

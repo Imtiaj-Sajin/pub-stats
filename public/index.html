@@ -68,15 +68,16 @@
     padding-inline: 18px;
     padding-block: 20px 60px;
   }
-  .wrap { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  .wrap { max-width: 1140px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 22px; align-items: start; }
-  .main-col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-  .sidebar { position: sticky; top: 16px; }
-  .sidebar .history-list { max-height: 78vh; overflow-y: auto; padding-right: 2px; }
-  @media (max-width: 880px) {
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+  .main-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .sidebar { position: sticky; top: 16px; min-width: 0; }
+  .sidebar .history-list { max-height: 80vh; overflow-y: auto; padding-right: 2px; }
+  @media (max-width: 1024px) {
     .layout { grid-template-columns: 1fr; }
     .sidebar { position: static; }
+    .sidebar .history-list { max-height: none; }
   }
 
   h1, h2, h3 { font-family: 'Source Serif 4', Georgia, serif; font-weight: 600; margin: 0; text-wrap: balance; }
@@ -178,6 +179,8 @@
   }
   .chart-tabs button:last-child { border-right: none; }
   .chart-tabs button.active { background: var(--accent); color: #fff; }
+  .chart-run-label { margin-top: 10px; font-size: 0.8rem; color: var(--accent-ink); background: var(--accent-soft); border-radius: 7px; padding: 6px 10px; display: inline-block; }
+  .chart-run-label:empty { display: none; }
   .chart-area { margin-top: 14px; }
   .chart-area svg { width: 100%; height: auto; display: block; overflow: visible; }
   .chart-empty { color: var(--ink-faint); font-size: 0.85rem; padding: 24px 0; text-align: center; }
@@ -337,13 +340,14 @@
 
   <section class="panel">
     <h2>Patterns</h2>
-    <div class="sub">Visual trends across every saved run.</div>
+    <div class="sub" id="chartScope">Charts are built from the <strong>manuscript ID</strong> (which is sequential, so higher = submitted later) since real submission dates only exist for the rare published papers with a DOI.</div>
     <div class="chart-tabs" id="chartTabs">
-      <button type="button" data-chart="activity" class="active">Activity</button>
-      <button type="button" data-chart="calendar">Calendar</button>
+      <button type="button" data-chart="wave" class="active">Stage by ID</button>
+      <button type="button" data-chart="band">Outcome by ID band</button>
       <button type="button" data-chart="timeline">Manuscript timeline</button>
-      <button type="button" data-chart="stagemix">Stage mix</button>
+      <button type="button" data-chart="activity">Activity over time</button>
     </div>
+    <div class="chart-run-label" id="chartRunLabel"></div>
     <div class="row" id="timelineIdRow" hidden style="margin-top:10px">
       <div class="field grow">
         <label for="chartTrackId">Manuscript ID</label>
@@ -415,7 +419,7 @@
     return { prefix: m[1], num: parseInt(m[2], 10), width: m[2].length };
   }
 
-  var state = { runs: [], viewingIndex: -1, scanning: false, es: null, doiCache: {}, density: 'comfortable', chartType: 'activity' };
+  var state = { runs: [], viewingIndex: -1, scanning: false, es: null, doiCache: {}, density: 'comfortable', chartType: 'wave', currentRun: null };
   var STAGE_GROUP_NAMES = { 1: 'Editorial Assessment', 2: 'Review', 3: 'Revision', 4: 'Acceptance', 5: 'Production', 6: 'Published', 7: 'Rejected', 8: 'Withdrawn' };
   var tableState = { rows: [], filter: '' };
 
@@ -424,7 +428,7 @@
    'progressText', 'log', 'resultsPanel', 'resultsSub', 'stats', 'bars', 'tablePanel', 'resultsTable', 'tableView',
    'cardGrid', 'tableBody', 'filterBox',
    'historyList', 'viewingBanner', 'viewingBannerText', 'backToLatestBtn', 'trackId', 'trackBtn', 'trackResult',
-   'comfortableBtn', 'compactBtn', 'chartTabs', 'chartArea', 'timelineIdRow', 'chartTrackId'
+   'comfortableBtn', 'compactBtn', 'chartTabs', 'chartArea', 'chartRunLabel', 'timelineIdRow', 'chartTrackId'
   ].forEach(function (id) { els[id] = document.getElementById(id); });
 
   function setDensity(compact) {
@@ -574,8 +578,10 @@
   els.filterBox.oninput = function () { tableState.filter = els.filterBox.value; refreshView(); };
 
   function showRun(run, isLatest) {
+    state.currentRun = run;
     renderStats(run);
     renderTable(run);
+    renderChart();
     els.viewingBanner.hidden = !!isLatest;
     if (!isLatest) els.viewingBannerText.textContent = 'Viewing a past run from ' + new Date(run.startedAt).toLocaleString();
   }
@@ -616,97 +622,120 @@
   });
 
   // ---------- charts ----------
+  // Records only ever carry {id, stage, sub_stage}. There is no submission date
+  // to plot for in-progress manuscripts, so the ID-based charts below use the
+  // manuscript number itself as the x-axis: IDs are handed out sequentially, so
+  // a higher number means a later submission. That makes the ID a usable proxy
+  // for "when", which is the whole point of these views.
+  var STAGE_COLORS = { 1: 'var(--stage1-fg)', 2: 'var(--stage2-fg)', 3: 'var(--stage3-fg)', 4: 'var(--stage4-fg)', 5: 'var(--stage5-fg)', 6: 'var(--stage6-fg)', 7: 'var(--stage7-fg)', 8: 'var(--stage8-fg)' };
+
   function svgWrap(w, h, label, inner) {
     return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(label) + '">' + inner + '</svg>';
   }
+  function numOf(id) { var m = String(id).match(/(\d+)$/); return m ? parseInt(m[1], 10) : null; }
+  function chartEmpty(msg) { els.chartArea.innerHTML = '<div class="chart-empty">' + esc(msg) + '</div>'; }
+  function stageLegend(stages) {
+    return '<div class="chart-legend">' + stages.map(function (s) {
+      return '<span><span class="sw" style="background:' + STAGE_COLORS[s] + '"></span>' + STAGE_GROUP_NAMES[s] + '</span>';
+    }).join('') + '</div>';
+  }
 
-  function renderActivityChart() {
-    var byDay = {};
-    state.runs.forEach(function (run) {
-      var day = run.startedAt.slice(0, 10);
-      if (!byDay[day]) byDay[day] = { day: day, found: 0, rejected: 0 };
-      var sum = summarize(run);
-      byDay[day].found += sum.total;
-      byDay[day].rejected += sum.rejected;
-    });
-    var data = Object.keys(byDay).sort().map(function (k) { return byDay[k]; });
-    if (!data.length) { els.chartArea.innerHTML = '<div class="chart-empty">No runs yet.</div>'; return; }
+  // Stage plotted against manuscript number for one run: shows the "processing
+  // wave" — recent (high-number) manuscripts cluster in early stages, older ones
+  // have progressed or been rejected.
+  function renderStageByIdChart(run) {
+    var pts = run.records.map(function (r) { return { n: numOf(r.id), s: r.s, ss: r.ss, id: r.id }; })
+      .filter(function (p) { return p.n !== null; });
+    if (!pts.length) { chartEmpty('This run has no manuscripts to plot.'); return; }
 
-    var W = 720, H = 220, padL = 34, padR = 10, padT = 10, padB = 30;
+    var minN = Math.min.apply(null, pts.map(function (p) { return p.n; }));
+    var maxN = Math.max.apply(null, pts.map(function (p) { return p.n; }));
+    var spanN = Math.max(maxN - minN, 1);
+
+    var W = 720, H = 260, padL = 128, padR = 16, padT = 12, padB = 34;
     var plotW = W - padL - padR, plotH = H - padT - padB;
-    var maxVal = Math.max.apply(null, data.map(function (d) { return d.found; }).concat([1]));
-    var groupW = plotW / data.length;
-    var barW = Math.min(28, groupW * 0.34);
+    var rowH = plotH / 8;
+    function xOf(n) { return padL + ((n - minN) / spanN) * plotW; }
+    function yOf(s) { return padT + plotH - (s - 0.5) * rowH; }
+
+    var rows = '';
+    for (var s = 1; s <= 8; s++) {
+      var yy = padT + plotH - s * rowH;
+      rows += '<rect x="' + padL + '" y="' + yy + '" width="' + plotW + '" height="' + rowH + '" style="fill:' + STAGE_COLORS[s] + ';opacity:0.06"/>' +
+        '<text x="' + (padL - 8) + '" y="' + (yOf(s) + 3) + '" text-anchor="end" font-size="10" style="fill:var(--ink-faint)">' + STAGE_GROUP_NAMES[s] + '</text>';
+    }
+    // deterministic jitter so overlapping dots at the same stage form a readable cloud
+    var dots = pts.map(function (p) {
+      var jitter = ((p.n * 2654435761) % 1000) / 1000 - 0.5;
+      var cy = yOf(p.s) + jitter * rowH * 0.7;
+      return '<circle cx="' + xOf(p.n).toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="3" style="fill:' + STAGE_COLORS[p.s] + ';opacity:0.8"><title>' + esc(p.id + ' — ' + stageTitle(p.s, p.ss)) + '</title></circle>';
+    }).join('');
+    var xticks = [minN, Math.round((minN + maxN) / 2), maxN].map(function (n) {
+      return '<text x="' + xOf(n) + '" y="' + (H - padB + 18) + '" text-anchor="middle" font-size="10" style="fill:var(--ink-faint)">' + run.prefix + '-' + n + '</text>';
+    }).join('');
+
+    els.chartArea.innerHTML = svgWrap(W, H, 'Stage by manuscript ID', rows + dots + xticks) +
+      '<div class="chart-legend">Each dot is one manuscript. Left = earlier submissions (lower IDs), right = most recent. Read the shape: where the newest IDs sit tells you the current processing frontier.</div>';
+  }
+
+  // IDs bucketed into bands; each band a stacked bar of stage-group counts.
+  // Shows how outcome composition shifts from oldest to newest submissions.
+  function renderOutcomeByBandChart(run) {
+    var pts = run.records.map(function (r) { return { n: numOf(r.id), s: r.s }; }).filter(function (p) { return p.n !== null; });
+    if (!pts.length) { chartEmpty('This run has no manuscripts to plot.'); return; }
+
+    var minN = Math.min.apply(null, pts.map(function (p) { return p.n; }));
+    var maxN = Math.max.apply(null, pts.map(function (p) { return p.n; }));
+    var spanN = Math.max(maxN - minN + 1, 1);
+    var nBands = Math.max(1, Math.min(20, Math.ceil(pts.length / 6)));
+    var bandSize = Math.ceil(spanN / nBands);
+    var bands = [];
+    for (var b = 0; b < nBands; b++) bands.push({ lo: minN + b * bandSize, hi: minN + (b + 1) * bandSize - 1, counts: {}, total: 0 });
+    pts.forEach(function (p) {
+      var bi = Math.min(nBands - 1, Math.floor((p.n - minN) / bandSize));
+      bands[bi].counts[p.s] = (bands[bi].counts[p.s] || 0) + 1;
+      bands[bi].total++;
+    });
+    var maxTotal = Math.max.apply(null, bands.map(function (x) { return x.total; }).concat([1]));
+
+    var W = 720, H = 250, padL = 30, padR = 12, padT = 12, padB = 40;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var colW = plotW / bands.length;
+    var barW = Math.min(40, colW * 0.72);
+    var usedStages = {};
 
     var grid = [0, 0.5, 1].map(function (t) {
       var yy = padT + plotH * (1 - t);
       return '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" style="stroke:var(--border)" stroke-width="1"/>' +
-        '<text x="' + (padL - 6) + '" y="' + (yy + 3) + '" text-anchor="end" font-size="10" style="fill:var(--ink-faint)">' + Math.round(maxVal * t) + '</text>';
+        '<text x="' + (padL - 6) + '" y="' + (yy + 3) + '" text-anchor="end" font-size="10" style="fill:var(--ink-faint)">' + Math.round(maxTotal * t) + '</text>';
     }).join('');
 
-    var bars = data.map(function (d, i) {
-      var cx = padL + groupW * i + groupW / 2;
-      var hFound = (d.found / maxVal) * plotH;
-      var hRej = (d.rejected / maxVal) * plotH;
-      var label = new Date(d.day + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      return '<rect x="' + (cx - barW - 2) + '" y="' + (padT + plotH - hFound) + '" width="' + barW + '" height="' + hFound + '" style="fill:var(--accent)"><title>' + label + ': ' + d.found + ' found</title></rect>' +
-        '<rect x="' + (cx + 2) + '" y="' + (padT + plotH - hRej) + '" width="' + barW + '" height="' + hRej + '" style="fill:var(--danger)"><title>' + label + ': ' + d.rejected + ' rejected</title></rect>' +
-        '<text x="' + cx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="10" style="fill:var(--ink-faint)">' + label + '</text>';
-    }).join('');
-
-    els.chartArea.innerHTML = svgWrap(W, H, 'Manuscripts found and rejected per day', grid + bars) +
-      '<div class="chart-legend"><span><span class="sw" style="background:var(--accent)"></span>Found</span><span><span class="sw" style="background:var(--danger)"></span>Rejected</span></div>';
-  }
-
-  function renderCalendarChart() {
-    // byDay keys are UTC dates (run.startedAt is a UTC ISO string), so the grid
-    // below is built in UTC throughout rather than mixing in local-time Date
-    // math, which would silently shift cells by a day depending on the viewer's
-    // timezone offset.
-    var byDay = {};
-    state.runs.forEach(function (run) {
-      var day = run.startedAt.slice(0, 10);
-      byDay[day] = (byDay[day] || 0) + summarize(run).total;
-    });
-    var now = new Date();
-    var todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-    var weeks = 18;
-    var startUTC = todayUTC - (weeks * 7 - 1) * 86400000;
-    startUTC -= new Date(startUTC).getUTCDay() * 86400000;
-    var totalDays = Math.round((todayUTC - startUTC) / 86400000) + 1;
-    var cell = 12, gap = 3, step = cell + gap;
-    var padL = 28, padT = 16;
-    var cols = Math.ceil(totalDays / 7);
-    var W = padL + cols * step, H = padT + 7 * step;
-    var levelColor = ['var(--surface-2)', 'var(--accent)', 'var(--accent)', 'var(--accent)', 'var(--accent)'];
-    var levelOpacity = [1, 0.3, 0.55, 0.78, 1];
-
-    var cells = '', monthLabels = '', lastMonth = -1;
-    for (var i = 0; i < totalDays; i++) {
-      var d = new Date(startUTC + i * 86400000);
-      var col = Math.floor(i / 7), row = d.getUTCDay();
-      var key = d.toISOString().slice(0, 10);
-      var count = byDay[key] || 0;
-      var level = count <= 0 ? 0 : count <= 2 ? 1 : count <= 5 ? 2 : count <= 10 ? 3 : 4;
-      var x = padL + col * step, y = padT + row * step;
-      if (row === 0 && d.getUTCMonth() !== lastMonth) {
-        lastMonth = d.getUTCMonth();
-        monthLabels += '<text x="' + x + '" y="10" font-size="10" style="fill:var(--ink-faint)">' + d.toLocaleDateString(undefined, { month: 'short', timeZone: 'UTC' }) + '</text>';
+    var bars = bands.map(function (band, i) {
+      var cx = padL + colW * i + colW / 2;
+      var yCursor = padT + plotH;
+      var segs = '';
+      for (var s = 1; s <= 8; s++) {
+        var c = band.counts[s] || 0;
+        if (!c) continue;
+        usedStages[s] = true;
+        var h = (c / maxTotal) * plotH;
+        yCursor -= h;
+        segs += '<rect x="' + (cx - barW / 2) + '" y="' + yCursor.toFixed(1) + '" width="' + barW + '" height="' + h.toFixed(1) + '" style="fill:' + STAGE_COLORS[s] + '"><title>' + run.prefix + '-' + band.lo + '–' + band.hi + ' · ' + STAGE_GROUP_NAMES[s] + ': ' + c + '</title></rect>';
       }
-      var stroke = level === 0 ? ' stroke="var(--border)" stroke-width="1"' : '';
-      cells += '<rect x="' + x + '" y="' + y + '" width="' + cell + '" height="' + cell + '" rx="2" style="fill:' + levelColor[level] + ';opacity:' + levelOpacity[level] + '"' + stroke + '><title>' + key + ': ' + count + ' found</title></rect>';
-    }
-    var dow = ['', 'Mon', '', 'Wed', '', 'Fri', ''].map(function (lbl, r) {
-      return lbl ? '<text x="0" y="' + (padT + r * step + cell) + '" font-size="9" style="fill:var(--ink-faint)">' + lbl + '</text>' : '';
+      var showLabel = bands.length <= 10 || i % 2 === 0;
+      var label = showLabel ? '<text x="' + cx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" style="fill:var(--ink-faint)">' + band.lo + '</text>' : '';
+      return segs + label;
     }).join('');
 
-    els.chartArea.innerHTML = svgWrap(W, H, 'Daily activity calendar', monthLabels + dow + cells) +
-      '<div class="chart-legend">Darker = more manuscripts found that day. Sparse until you have more days of history.</div>';
+    var stagesUsed = Object.keys(usedStages).map(Number).sort();
+    els.chartArea.innerHTML = svgWrap(W, H, 'Outcome by ID band', grid + bars) + stageLegend(stagesUsed) +
+      '<div class="chart-legend">Bars left→right go from oldest to newest submissions. Bar height = manuscripts in that ID range.</div>';
   }
 
+  // Cross-run: one manuscript's stage over calendar time.
   function renderTimelineChart() {
     var parsed = parseId(els.chartTrackId.value);
-    if (!parsed) { els.chartArea.innerHTML = '<div class="chart-empty">Enter a manuscript ID above.</div>'; return; }
+    if (!parsed) { chartEmpty('Enter a manuscript ID above.'); return; }
     var id = parsed.prefix + '-' + String(parsed.num).padStart(parsed.width, '0');
     var hits = [];
     state.runs.forEach(function (run) {
@@ -714,13 +743,13 @@
       if (found) hits.push({ when: new Date(run.startedAt), s: found.s, ss: found.ss });
     });
     hits.sort(function (a, b) { return a.when - b.when; });
-    if (!hits.length) { els.chartArea.innerHTML = '<div class="chart-empty">No record of ' + esc(id) + ' in your saved runs yet.</div>'; return; }
+    if (!hits.length) { chartEmpty('No record of ' + id + ' in your saved runs yet. Scan a range that includes it, more than once, to build a timeline.'); return; }
 
-    var W = 720, H = 220, padL = 96, padR = 16, padT = 14, padB = 28;
+    var W = 720, H = 220, padL = 128, padR = 16, padT = 14, padB = 28;
     var plotW = W - padL - padR, plotH = H - padT - padB;
     var t0 = hits[0].when.getTime(), t1 = hits[hits.length - 1].when.getTime();
     var span = Math.max(t1 - t0, 1);
-    function xOf(t) { return padL + ((t - t0) / span) * plotW; }
+    function xOf(t) { return padL + (span === 1 ? plotW / 2 : ((t - t0) / span) * plotW); }
     function yOf(s) { return padT + plotH - ((s - 1) / 7) * plotH; }
 
     var rows = '';
@@ -729,57 +758,71 @@
       rows += '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" style="stroke:var(--border)" stroke-width="1"/>' +
         '<text x="' + (padL - 8) + '" y="' + (yy + 3) + '" text-anchor="end" font-size="10" style="fill:var(--ink-faint)">' + STAGE_GROUP_NAMES[s] + '</text>';
     }
-    var points = hits.map(function (h) { return xOf(h.when.getTime()) + ',' + yOf(h.s); }).join(' ');
+    var points = hits.map(function (h) { return xOf(h.when.getTime()).toFixed(1) + ',' + yOf(h.s).toFixed(1); }).join(' ');
     var dots = hits.map(function (h) {
-      var color = h.s === 7 ? 'var(--danger)' : h.s === 8 ? 'var(--ink-faint)' : 'var(--accent)';
       var label = h.when.toLocaleString() + ' — ' + stageTitle(h.s, h.ss);
-      return '<circle cx="' + xOf(h.when.getTime()) + '" cy="' + yOf(h.s) + '" r="4" style="fill:' + color + '"><title>' + esc(label) + '</title></circle>';
+      return '<circle cx="' + xOf(h.when.getTime()).toFixed(1) + '" cy="' + yOf(h.s).toFixed(1) + '" r="4" style="fill:' + STAGE_COLORS[h.s] + '"><title>' + esc(label) + '</title></circle>';
     }).join('');
 
     els.chartArea.innerHTML = svgWrap(W, H, 'Stage timeline for ' + id,
-      rows + '<polyline points="' + points + '" fill="none" style="stroke:var(--accent);opacity:0.5" stroke-width="1.5"/>' + dots);
+      rows + '<polyline points="' + points + '" fill="none" style="stroke:var(--accent);opacity:0.5" stroke-width="1.5"/>' + dots) +
+      '<div class="chart-legend">' + esc(id) + ' across ' + hits.length + ' run' + (hits.length === 1 ? '' : 's') + '. Needs the same ID scanned on different days to show movement.</div>';
   }
 
-  function renderStageMixChart() {
+  // Cross-run: how many manuscripts each run found vs rejected, over time.
+  function renderActivityChart() {
     var runs = state.runs.slice().sort(function (a, b) { return new Date(a.startedAt) - new Date(b.startedAt); });
-    if (!runs.length) { els.chartArea.innerHTML = '<div class="chart-empty">No runs yet.</div>'; return; }
+    if (!runs.length) { chartEmpty('No runs yet.'); return; }
 
-    var W = 720, H = 240, padL = 10, padR = 10, padT = 10, padB = 46;
+    var W = 720, H = 230, padL = 34, padR = 10, padT = 10, padB = 46;
     var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxVal = Math.max.apply(null, runs.map(function (r) { return summarize(r).total; }).concat([1]));
     var colW = plotW / runs.length;
-    var barW = Math.min(46, colW * 0.6);
+    var barW = Math.min(26, colW * 0.34);
+
+    var grid = [0, 0.5, 1].map(function (t) {
+      var yy = padT + plotH * (1 - t);
+      return '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" style="stroke:var(--border)" stroke-width="1"/>' +
+        '<text x="' + (padL - 6) + '" y="' + (yy + 3) + '" text-anchor="end" font-size="10" style="fill:var(--ink-faint)">' + Math.round(maxVal * t) + '</text>';
+    }).join('');
 
     var bars = runs.map(function (run, i) {
-      var counts = {};
-      run.records.forEach(function (r) { counts[r.s] = (counts[r.s] || 0) + 1; });
-      var total = run.records.length || 1;
+      var sum = summarize(run);
       var cx = padL + colW * i + colW / 2;
-      var yCursor = padT + plotH;
-      var segs = '';
-      for (var s = 1; s <= 8; s++) {
-        var frac = (counts[s] || 0) / total;
-        if (!frac) continue;
-        var h = frac * plotH;
-        yCursor -= h;
-        segs += '<rect x="' + (cx - barW / 2) + '" y="' + yCursor + '" width="' + barW + '" height="' + h + '" style="fill:var(--stage' + s + '-fg)"><title>' + STAGE_GROUP_NAMES[s] + ': ' + counts[s] + '</title></rect>';
-      }
-      var label = new Date(run.startedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      return segs + '<text x="' + cx + '" y="' + (H - padB + 16) + '" text-anchor="middle" font-size="9" style="fill:var(--ink-faint)">' + label + '</text>';
+      var hFound = (sum.total / maxVal) * plotH;
+      var hRej = (sum.rejected / maxVal) * plotH;
+      var when = new Date(run.startedAt);
+      var label = when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      var range = run.prefix + '-' + run.startNum + (sum.frontier ? '→' + numOf(sum.frontier.id) : '');
+      return '<rect x="' + (cx - barW - 1) + '" y="' + (padT + plotH - hFound).toFixed(1) + '" width="' + barW + '" height="' + hFound.toFixed(1) + '" style="fill:var(--accent)"><title>' + range + ': ' + sum.total + ' found</title></rect>' +
+        '<rect x="' + (cx + 1) + '" y="' + (padT + plotH - hRej).toFixed(1) + '" width="' + barW + '" height="' + hRej.toFixed(1) + '" style="fill:var(--danger)"><title>' + range + ': ' + sum.rejected + ' rejected</title></rect>' +
+        '<text x="' + cx + '" y="' + (H - padB + 15) + '" text-anchor="middle" font-size="9" style="fill:var(--ink-faint)">' + label + '</text>';
     }).join('');
 
-    var legend = [1, 2, 3, 4, 5, 6, 7, 8].map(function (s) {
-      return '<span><span class="sw" style="background:var(--stage' + s + '-fg)"></span>' + STAGE_GROUP_NAMES[s] + '</span>';
-    }).join('');
+    els.chartArea.innerHTML = svgWrap(W, H, 'Manuscripts found and rejected per run', grid + bars) +
+      '<div class="chart-legend"><span><span class="sw" style="background:var(--accent)"></span>Found</span><span><span class="sw" style="background:var(--danger)"></span>Rejected</span> — one column per saved run.</div>';
+  }
 
-    els.chartArea.innerHTML = svgWrap(W, H, 'Stage mix per run', bars) + '<div class="chart-legend">' + legend + '</div>';
+  function runLabel(run) {
+    var sum = summarize(run);
+    return run.prefix + '-' + String(run.startNum).padStart(run.width, '0') + (sum.frontier ? ' → ' + sum.frontier.id : '') +
+      ' · scanned ' + new Date(run.startedAt).toLocaleString();
   }
 
   function renderChart() {
+    var perRun = state.chartType === 'wave' || state.chartType === 'band';
     els.timelineIdRow.hidden = state.chartType !== 'timeline';
-    if (state.chartType === 'activity') renderActivityChart();
-    else if (state.chartType === 'calendar') renderCalendarChart();
-    else if (state.chartType === 'timeline') renderTimelineChart();
-    else if (state.chartType === 'stagemix') renderStageMixChart();
+    els.chartRunLabel.textContent = perRun && state.currentRun ? ('This run: ' + runLabel(state.currentRun)) : '';
+
+    if (perRun) {
+      if (!state.currentRun) { chartEmpty('Select a run in the sidebar (or run a scan) to see its patterns.'); return; }
+      if (state.chartType === 'wave') renderStageByIdChart(state.currentRun);
+      else renderOutcomeByBandChart(state.currentRun);
+    } else if (state.chartType === 'timeline') {
+      renderTimelineChart();
+    } else if (state.chartType === 'activity') {
+      renderActivityChart();
+    }
   }
 
   Array.prototype.forEach.call(els.chartTabs.querySelectorAll('button'), function (btn) {
@@ -796,10 +839,11 @@
     return fetch('/api/runs').then(function (r) { return r.json(); }).then(function (runs) {
       state.runs = runs;
       renderHistory();
-      renderChart();
       if (runs.length) {
         var latest = runs.slice().sort(function (a, b) { return new Date(b.startedAt) - new Date(a.startedAt); })[0];
         showRun(latest, true);
+      } else {
+        renderChart();
       }
       els.serverStatus.className = 'status-dot ok';
       els.serverStatusText.textContent = runs.length + ' run' + (runs.length === 1 ? '' : 's') + ' saved';
