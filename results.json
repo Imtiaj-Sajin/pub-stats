@@ -1,0 +1,830 @@
+[
+  {
+    "id": "JNE-111663",
+    "stage": 2,
+    "sub_stage": 1,
+    "title": "Out to reviewers",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111664",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111665",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111666",
+    "stage": 2,
+    "sub_stage": 1,
+    "title": "Out to reviewers",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111667",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111668",
+    "stage": 7,
+    "sub_stage": 2,
+    "title": "Reject & transfer",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111669",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111670",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111671",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111672",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111673",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111674",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111675",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111676",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111677",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111678",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111679",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111680",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111681",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111682",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111683",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111684",
+    "stage": 2,
+    "sub_stage": 1,
+    "title": "Out to reviewers",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111685",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111686",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111687",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111688",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111689",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111690",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111691",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111692",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111693",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111694",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111695",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111696",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111697",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111698",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111699",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111700",
+    "stage": 7,
+    "sub_stage": 2,
+    "title": "Reject & transfer",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111701",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111702",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111703",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111704",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111705",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111706",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111707",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111708",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111709",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111710",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111711",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111712",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111713",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111714",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111715",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111716",
+    "stage": 2,
+    "sub_stage": 1,
+    "title": "Out to reviewers",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111717",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111718",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111719",
+    "stage": 7,
+    "sub_stage": 2,
+    "title": "Reject & transfer",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111720",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111721",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111722",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111723",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111724",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111725",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111726",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111727",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111728",
+    "stage": 2,
+    "sub_stage": 2,
+    "title": "1st reviewer agreed to report",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111729",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111730",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111731",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111732",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111733",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111734",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111735",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111736",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111737",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111738",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111739",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111740",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111741",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111742",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111743",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111744",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111745",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111746",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111747",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111748",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111749",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111750",
+    "stage": 7,
+    "sub_stage": 1,
+    "title": "Flat reject",
+    "rejected": true,
+    "doi": null
+  },
+  {
+    "id": "JNE-111751",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111752",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111753",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111754",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111755",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111756",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111757",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111758",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111759",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111760",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111761",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111762",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111763",
+    "stage": 1,
+    "sub_stage": 1,
+    "title": "Editorial Assessment",
+    "rejected": false,
+    "doi": null
+  },
+  {
+    "id": "JNE-111764",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111765",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111766",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111767",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111768",
+    "invalid": true
+  },
+  {
+    "id": "JNE-111769",
+    "invalid": true
+  }
+]

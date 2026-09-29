@@ -1,0 +1,60 @@
+https://publishingsupport.iopscience.iop.org/wp-json/wp/v2/article-stages?per_page=30&orderby=slug&order=asc
+  -> static list of all stage definitions (id "stage-<stage>-<substage>" -> title/description). Saved locally as stages.map.json.
+
+>>>
+
+
+https://publishingsupport.iopscience.iop.org/wp-content/themes/iopservices-v1.1/partials/stage.html
+  -> Angular partial template for the results page (just markup, not data).
+
+===
+
+REAL STATUS-CHECK API (found in article-tracker.min.js, the Angular controller behind the form):
+
+  GET https://oh0l6sxf16.execute-api.eu-west-1.amazonaws.com/prod?articleId=JNE-111663
+
+  200 OK  -> {"stage": 2, "sub_stage": 1, "doi": "null"}   (map stage.sub_stage via stages.map.json, e.g. 2.1 = "Out to reviewers")
+  400     -> manuscript ID not valid / not yet assigned
+
+  Stage numbers: 1=Editorial Assessment, 2=Review, 3=Revision, 4=Acceptance, 5=Production, 6=Published, 7=Rejected (7.1 flat reject, 7.2 reject & transfer, 7.3 reject to resubmit), 8=Withdraw.
+
+  IDs are sequential per journal prefix (not global), so incrementing the numeric suffix by 1 and hitting this endpoint directly is a reliable way to walk the whole submission queue for a journal without going through the web form.
+
+SUBMISSION DATES: NOT available anywhere for a manuscript still in progress (Editorial
+  Assessment, Review, Revision, rejected, withdrawn, etc.) — the tracking API only ever
+  returns {stage, sub_stage, doi}, and the Angular template that renders the results page
+  (stage.html) never binds any date field either. iopscience.iop.org's own article pages
+  are behind a Radware Bot Manager CAPTCHA, so scraping those isn't an option.
+
+  BUT: once a manuscript is far enough along to have a DOI (found starting at stage 6
+  "Published" in practice — e.g. JNE-102013 -> doi 10.1088/1741-2552/aa9817), the free,
+  CORS-open CrossRef API (https://api.crossref.org/works/<doi>) returns real dates in its
+  "assertion" array: date_received (= submission date), date_accepted, date_epub. No auth
+  needed. server.js exposes this as GET /api/doi-dates?doi=<doi> (cached to
+  data/doi-dates.json since these never change), and the dashboard shows it as a
+  "Submitted" column for any row that has a DOI — "—" for everything else, which in
+  practice is almost every row in a scan near the current frontier, since those haven't
+  been published yet.
+
+TOOLING (this folder):
+  server.js + public/index.html   - local web dashboard. Run `npm start` (or `node server.js`), then open
+                                     http://localhost:5175. Enter a start ID, click "Run scan" — it streams
+                                     the live check log to the page and, on completion, appends the run to
+                                     data/runs.json with a timestamp. Past runs are browsable from the page
+                                     ("Past runs" list) and you can look up how one manuscript ID's stage
+                                     changed across all saved runs ("Track one manuscript over time").
+                                     NOTE: the AWS endpoint requires an Origin header on requests or it
+                                     returns a generic 400 ("Missing required request parameters: [origin]")
+                                     that looks identical to an invalid-ID 400 unless you inspect the body.
+  data/runs.json   - persistent history store the web dashboard reads/writes (one JSON object per run).
+  scan.js          - original CLI version: node scan.js JNE-111663 [--delay=350] [--threshold=5] [--max=2000] [--out=results.json]
+                     same logic as server.js's scanner, useful for one-off checks without starting the server.
+  stages.map.json  - slug -> title lookup used by both scan.js and server.js
+  results.json / tracking-report.txt - output of the very first CLI scan (2026-09-29); superseded by
+                                     data/runs.json, which that scan was migrated into as its first entry.
+
+LATEST RUN (2026-09-29): scanned JNE-111663 -> JNE-111769.
+  Frontier (latest submitted manuscript found): JNE-111763
+  100 valid IDs in range 111663-111763 (one gap: 111671 invalid/withdrawn)
+  63 still active, 37 rejected (34 flat reject, 3 reject & transfer)
+  JNE-111663 (mine) is at stage 2.1 "Out to reviewers"; most manuscripts submitted right before the frontier are still stuck at stage 1.1 "Editorial Assessment", i.e. haven't cleared the first stage yet.

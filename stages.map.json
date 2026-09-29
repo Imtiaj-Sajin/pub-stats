@@ -1,0 +1,20 @@
+[
+  { "slug": "stage-1-1", "title": "Editorial Assessment", "content": "Your manuscript is being read by our editorial team to check your submission is complete and that it meets the scope and quality criteria of the journal." },
+  { "slug": "stage-2-1", "title": "Out to reviewers", "content": "We're searching for expert referees to review your paper." },
+  { "slug": "stage-2-2", "title": "1st reviewer agreed to report", "content": "" },
+  { "slug": "stage-2-3", "title": "All reviewer reports received", "content": "" },
+  { "slug": "stage-3-1", "title": "Revision", "content": "" },
+  { "slug": "stage-3-2", "title": "Revision: Out to reviewers", "content": "" },
+  { "slug": "stage-3-3", "title": "Revision: All reviewer reports received", "content": "" },
+  { "slug": "stage-4-1", "title": "Provisional acceptance", "content": "" },
+  { "slug": "stage-4-2", "title": "Formal acceptance", "content": "" },
+  { "slug": "stage-5-1", "title": "In Production", "content": "" },
+  { "slug": "stage-5-2", "title": "Proof being prepared", "content": "" },
+  { "slug": "stage-5-3", "title": "Proof Check", "content": "" },
+  { "slug": "stage-5-4", "title": "Preparing for publication", "content": "" },
+  { "slug": "stage-6-1", "title": "Published", "content": "" },
+  { "slug": "stage-7-1", "title": "Flat reject", "content": "" },
+  { "slug": "stage-7-2", "title": "Reject & transfer", "content": "" },
+  { "slug": "stage-7-3", "title": "Reject to resubmit", "content": "" },
+  { "slug": "stage-8-1", "title": "Withdraw", "content": "" }
+]

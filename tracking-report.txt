@@ -1,0 +1,105 @@
+IOPscience JNE manuscript tracker — scan run 2026-09-29T07:41:39.575Z
+Range scanned: JNE-111663 to JNE-111769 (frontier confirmed at JNE-111763; 111764-111769 all invalid)
+
+ID            Stage                              Status
+------------  ---------------------------------  --------
+JNE-111763    Editorial Assessment               active
+JNE-111762    Editorial Assessment               active
+JNE-111761    Editorial Assessment               active
+JNE-111760    Editorial Assessment               active
+JNE-111759    Editorial Assessment               active
+JNE-111758    Editorial Assessment               active
+JNE-111757    Editorial Assessment               active
+JNE-111756    Editorial Assessment               active
+JNE-111755    Editorial Assessment               active
+JNE-111754    Editorial Assessment               active
+JNE-111753    Editorial Assessment               active
+JNE-111752    Editorial Assessment               active
+JNE-111751    Editorial Assessment               active
+JNE-111750    Flat reject                        REJECTED
+JNE-111749    Flat reject                        REJECTED
+JNE-111748    Flat reject                        REJECTED
+JNE-111747    Editorial Assessment               active
+JNE-111746    Editorial Assessment               active
+JNE-111745    Editorial Assessment               active
+JNE-111744    Editorial Assessment               active
+JNE-111743    Flat reject                        REJECTED
+JNE-111742    Editorial Assessment               active
+JNE-111741    Editorial Assessment               active
+JNE-111740    Editorial Assessment               active
+JNE-111739    Editorial Assessment               active
+JNE-111738    Flat reject                        REJECTED
+JNE-111737    Editorial Assessment               active
+JNE-111736    Editorial Assessment               active
+JNE-111735    Editorial Assessment               active
+JNE-111734    Editorial Assessment               active
+JNE-111733    Editorial Assessment               active
+JNE-111732    Editorial Assessment               active
+JNE-111731    Flat reject                        REJECTED
+JNE-111730    Flat reject                        REJECTED
+JNE-111729    Editorial Assessment               active
+JNE-111728    1st reviewer agreed to report      active
+JNE-111727    Flat reject                        REJECTED
+JNE-111726    Editorial Assessment               active
+JNE-111725    Editorial Assessment               active
+JNE-111724    Editorial Assessment               active
+JNE-111723    Editorial Assessment               active
+JNE-111722    Editorial Assessment               active
+JNE-111721    Editorial Assessment               active
+JNE-111720    Flat reject                        REJECTED
+JNE-111719    Reject & transfer                  REJECTED
+JNE-111718    Editorial Assessment               active
+JNE-111717    Flat reject                        REJECTED
+JNE-111716    Out to reviewers                   active
+JNE-111715    Editorial Assessment               active
+JNE-111714    Flat reject                        REJECTED
+JNE-111713    Editorial Assessment               active
+JNE-111712    Editorial Assessment               active
+JNE-111711    Editorial Assessment               active
+JNE-111710    Flat reject                        REJECTED
+JNE-111709    Flat reject                        REJECTED
+JNE-111708    Flat reject                        REJECTED
+JNE-111707    Editorial Assessment               active
+JNE-111706    1st reviewer agreed to report      active
+JNE-111705    Editorial Assessment               active
+JNE-111704    Editorial Assessment               active
+JNE-111703    Editorial Assessment               active
+JNE-111702    Flat reject                        REJECTED
+JNE-111701    Flat reject                        REJECTED
+JNE-111700    Reject & transfer                  REJECTED
+JNE-111699    1st reviewer agreed to report      active
+JNE-111698    Editorial Assessment               active
+JNE-111697    Editorial Assessment               active
+JNE-111696    1st reviewer agreed to report      active
+JNE-111695    Flat reject                        REJECTED
+JNE-111694    Flat reject                        REJECTED
+JNE-111693    Flat reject                        REJECTED
+JNE-111692    1st reviewer agreed to report      active
+JNE-111691    Flat reject                        REJECTED
+JNE-111690    Flat reject                        REJECTED
+JNE-111689    Flat reject                        REJECTED
+JNE-111688    Flat reject                        REJECTED
+JNE-111687    1st reviewer agreed to report      active
+JNE-111686    1st reviewer agreed to report      active
+JNE-111685    Editorial Assessment               active
+JNE-111684    Out to reviewers                   active
+JNE-111683    Flat reject                        REJECTED
+JNE-111682    Flat reject                        REJECTED
+JNE-111681    Flat reject                        REJECTED
+JNE-111680    1st reviewer agreed to report      active
+JNE-111679    1st reviewer agreed to report      active
+JNE-111678    1st reviewer agreed to report      active
+JNE-111677    Flat reject                        REJECTED
+JNE-111676    Flat reject                        REJECTED
+JNE-111675    Flat reject                        REJECTED
+JNE-111674    Flat reject                        REJECTED
+JNE-111673    Flat reject                        REJECTED
+JNE-111672    Flat reject                        REJECTED
+JNE-111670    Flat reject                        REJECTED
+JNE-111669    1st reviewer agreed to report      active
+JNE-111668    Reject & transfer                  REJECTED
+JNE-111667    Editorial Assessment               active
+JNE-111666    Out to reviewers                   active
+JNE-111665    Editorial Assessment               active
+JNE-111664    Flat reject                        REJECTED
+JNE-111663    Out to reviewers                   active

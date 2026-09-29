@@ -1,0 +1,10 @@
+{
+  "name": "pub-stats-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local web dashboard for tracking IOPscience manuscript submission status.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
