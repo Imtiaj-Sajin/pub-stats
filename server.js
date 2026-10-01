@@ -70,6 +70,27 @@ function fetchStatus(articleId) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const REVISION_STAGE = 3;
+
+// When a manuscript is asked to revise, its BASE id freezes at stage 3
+// ("Revision") forever, and the real progress continues under a new id with a
+// ".rN" suffix (.r1 for the first revision, .r2 for the second, and so on).
+// So a base showing "Revision" is almost always stale. This follows the chain:
+// while the current node is at stage 3, probe the next ".rN"; keep the furthest
+// one that exists. Stops when the next ".rN" is missing (genuinely still
+// awaiting the author's revision) or the current node has moved past revision.
+async function resolveRevisionChain(baseId, baseData, revDelayMs) {
+  let data = baseData, rev = 0;
+  while (data && data.stage === REVISION_STAGE && rev < 20) {
+    if (revDelayMs) await sleep(revDelayMs);
+    const cand = await fetchStatus(baseId + '.r' + (rev + 1));
+    if (!cand.ok) break; // 400 = not resubmitted yet; error = leave as-is
+    rev += 1;
+    data = cand.data;
+  }
+  return { data: data, rev: rev };
+}
+
 // DOI -> {received, accepted, published} date cache. These never change once
 // set, so they're persisted to disk and never re-fetched once resolved.
 function loadDoiCache() {
@@ -161,10 +182,18 @@ async function handleScanStream(req, res, query) {
 
     if (result.ok) {
       invalidStreak = 0;
-      const rec = { id, s: result.data.stage, ss: result.data.sub_stage };
-      if (result.data.doi && result.data.doi !== 'null') rec.doi = result.data.doi;
+      let data = result.data, rev = 0;
+      if (data.stage === REVISION_STAGE) {
+        const resolved = await resolveRevisionChain(id, data, Math.min(delayMs, 200));
+        data = resolved.data;
+        rev = resolved.rev;
+      }
+      const rec = { id, s: data.stage, ss: data.sub_stage };
+      if (data.doi && data.doi !== 'null') rec.doi = data.doi;
+      if (rev > 0) rec.rev = rev;
       records.push(rec);
-      sseSend(res, 'log', { text: `${id}  ${stageTitle(rec.s, rec.ss)}`, kind: rec.s === 7 ? 'r' : 'g' });
+      const via = rev > 0 ? `  (via .r${rev})` : '';
+      sseSend(res, 'log', { text: `${id}  ${stageTitle(rec.s, rec.ss)}${via}`, kind: rec.s === 7 ? 'r' : 'g' });
     } else if (result.invalid) {
       invalidStreak++;
       gaps.push(id);

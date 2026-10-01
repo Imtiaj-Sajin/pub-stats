@@ -196,6 +196,7 @@
   tbody td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
   tbody tr:last-child td { border-bottom: none; }
   td.id { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+  .rev-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 999px; font-size: 0.64rem; font-weight: 600; font-family: 'Inter', sans-serif; background: var(--stage3-bg); color: var(--stage3-fg); vertical-align: middle; cursor: help; }
   .table-scroll { overflow-x: auto; max-height: 70vh; overflow-y: auto; border: 1px solid transparent; }
   .table-scroll thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
 
@@ -319,7 +320,7 @@
     <div class="table-tools">
       <div>
         <h2 style="font-size:1.05rem">Manuscripts, latest first</h2>
-        <div class="sub" style="margin:2px 0 0">Submission date only exists for manuscripts that reached publication and got a DOI — it's not tracked anywhere for ones still in progress.</div>
+        <div class="sub" style="margin:2px 0 0">An <span class="rev-tag" style="cursor:default">r2</span> tag means the real status was resolved through the revision chain (the base ID stays frozen at "Revision"). Submission dates appear once a paper has a DOI.</div>
       </div>
       <div class="row" style="gap:8px">
         <input type="text" id="filterBox" placeholder="Filter by ID or stage…" style="max-width:220px">
@@ -543,12 +544,18 @@
     });
   }
 
+  function revTag(r) {
+    if (!r.rev) return '';
+    var resolvedId = r.id + '.r' + r.rev;
+    return '<span class="rev-tag" title="Status resolved via revision ' + esc(resolvedId) + ' — the base ID stays frozen at &quot;Revision&quot;">r' + r.rev + '</span>';
+  }
+
   function renderAsTable(filtered) {
     els.tableBody.innerHTML = filtered.map(function (r) {
       var submittedCell = r.doi
         ? '<td class="id" data-doi-cell="' + esc(r.doi) + '">...</td>'
         : '<td class="id">—</td>';
-      return '<tr><td class="id">' + esc(r.id) + '</td><td>' + badge(r.s, r.ss) + '</td>' + submittedCell +
+      return '<tr><td class="id">' + esc(r.id) + revTag(r) + '</td><td>' + badge(r.s, r.ss) + '</td>' + submittedCell +
         '<td class="id">' + (r.doi ? esc(r.doi) : '—') + '</td></tr>';
     }).join('') || '<tr><td colspan="4" class="empty-note" style="padding:16px 8px">No matches.</td></tr>';
     hydrateSubmittedDates(els.tableBody);
@@ -557,7 +564,7 @@
   function renderAsCards(filtered) {
     els.cardGrid.innerHTML = filtered.map(function (r) {
       var sub = r.doi ? '<span class="csub" data-doi-cell="' + esc(r.doi) + '">...</span>' : '';
-      return '<div class="ms-card"><span class="cid">' + esc(r.id) + '</span>' + badge(r.s, r.ss) + sub + '</div>';
+      return '<div class="ms-card"><span class="cid">' + esc(r.id) + revTag(r) + '</span>' + badge(r.s, r.ss) + sub + '</div>';
     }).join('') || '<div class="empty-note">No matches.</div>';
     hydrateSubmittedDates(els.cardGrid);
   }

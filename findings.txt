@@ -20,6 +20,26 @@ REAL STATUS-CHECK API (found in article-tracker.min.js, the Angular controller b
 
   IDs are sequential per journal prefix (not global), so incrementing the numeric suffix by 1 and hitting this endpoint directly is a reliable way to walk the whole submission queue for a journal without going through the web form.
 
+REVISION CHAIN (critical — discovered 2026-10-01): when a manuscript is asked to revise,
+  its BASE id FREEZES at stage 3 ("Revision") permanently. The real, ongoing status moves
+  to a NEW id formed by appending ".rN" (.r1 = first revision, .r2 = second, ...). Suffix
+  is case-insensitive (.r1 == .R1). Verified live:
+    JNE-110017       -> stage 3.1 (Revision)        [frozen base]
+    JNE-110017.r1    -> stage 6.1 (Published), DOI 10.1088/1741-2552/ae7e26   [real status]
+    JNE-108003       -> 3.1 ; .r1 -> 3.1 (revised again) ; .r2 -> 6.1 Published  [TWO rounds]
+    JNE-111269       -> 3.1 ; .r1 -> 400   [genuinely still awaiting the author's revision]
+  So a base at stage 3 is almost always STALE. Resolution rule: while the current node is
+  at stage 3, fetch the next ".rN"; if it exists (200), that's the new current — keep going
+  while IT is also stage 3; stop when the next ".rN" is 400 (keep current = truly in
+  revision) or the node has moved past stage 3. This is why early scans looked like
+  "everyone is stuck in Revision" — ~50% of stage-3 bases in older ranges are actually
+  Published once you follow the chain. server.js now does this automatically
+  (resolveRevisionChain) and stores resolved s/ss/doi plus a `rev` count on each record;
+  the dashboard shows an "rN" tag on resolved rows. Once resolved to a published .rN, its
+  DOI also unlocks a real CrossRef submission date (e.g. JNE-110017.r1 received 2025-12-20).
+  The site itself does NOT auto-chase — the Revision stage page just tells the author to
+  re-enter their updated ID with the revision number.
+
 SUBMISSION DATES: NOT available anywhere for a manuscript still in progress (Editorial
   Assessment, Review, Revision, rejected, withdrawn, etc.) — the tracking API only ever
   returns {stage, sub_stage, doi}, and the Angular template that renders the results page
