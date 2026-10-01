@@ -287,8 +287,12 @@
         <summary>Advanced options</summary>
         <div class="row">
           <div class="field">
-            <label for="delayMs">Delay between checks (ms)</label>
-            <input type="number" id="delayMs" value="300" min="100" step="50">
+            <label for="concurrency">Parallel requests</label>
+            <input type="number" id="concurrency" value="10" min="1" max="100" step="1">
+          </div>
+          <div class="field">
+            <label for="delayMs">Delay between waves (ms)</label>
+            <input type="number" id="delayMs" value="150" min="0" step="50">
           </div>
           <div class="field">
             <label for="threshold">Invalid-streak to stop</label>
@@ -296,9 +300,10 @@
           </div>
           <div class="field">
             <label for="maxChecks">Max IDs to check</label>
-            <input type="number" id="maxChecks" value="1500" min="10" step="50">
+            <input type="number" id="maxChecks" value="4000" min="10" step="50">
           </div>
         </div>
+        <div class="sub" style="margin-top:8px">Higher parallelism scans much faster for big ranges (e.g. 50 fires 50 IDs at once). The delay is now a short pause <em>between waves</em>, not between every request.</div>
       </details>
       <div class="progress-text" id="progressText"></div>
       <div class="log" id="log"></div>
@@ -425,7 +430,7 @@
   var tableState = { rows: [], filter: '' };
 
   var els = {};
-  ['serverStatus', 'serverStatusText', 'startId', 'delayMs', 'threshold', 'maxChecks', 'runBtn', 'stopBtn',
+  ['serverStatus', 'serverStatusText', 'startId', 'delayMs', 'threshold', 'maxChecks', 'concurrency', 'runBtn', 'stopBtn',
    'progressText', 'log', 'resultsPanel', 'resultsSub', 'stats', 'bars', 'tablePanel', 'resultsTable', 'tableView',
    'cardGrid', 'tableBody', 'filterBox',
    'historyList', 'viewingBanner', 'viewingBannerText', 'backToLatestBtn', 'trackId', 'trackBtn', 'trackResult',
@@ -892,9 +897,10 @@
 
     var qs = new URLSearchParams({
       startId: els.startId.value.trim(),
-      delay: els.delayMs.value || '300',
+      delay: els.delayMs.value || '150',
       threshold: els.threshold.value || '6',
-      max: els.maxChecks.value || '1500'
+      max: els.maxChecks.value || '4000',
+      concurrency: els.concurrency.value || '10'
     });
 
     setScanning(true);

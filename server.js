@@ -83,7 +83,7 @@ async function resolveRevisionChain(baseId, baseData, revDelayMs) {
   let data = baseData, rev = 0;
   while (data && data.stage === REVISION_STAGE && rev < 20) {
     if (revDelayMs) await sleep(revDelayMs);
-    const cand = await fetchStatus(baseId + '.r' + (rev + 1));
+    const cand = await fetchStatusRetry(baseId + '.r' + (rev + 1), 1);
     if (!cand.ok) break; // 400 = not resubmitted yet; error = leave as-is
     rev += 1;
     data = cand.data;
@@ -137,6 +137,36 @@ function fetchCrossrefDates(doi) {
   });
 }
 
+// Retrying wrapper: a 200/400 is a definitive answer and returned immediately;
+// only transient failures (timeout, reset, 5xx) are retried, since firing many
+// requests at once makes those more likely.
+async function fetchStatusRetry(id, retries) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const r = await fetchStatus(id);
+    if (r.ok || r.invalid) return r;
+    if (attempt < retries) await sleep(300 + attempt * 400);
+  }
+  return { ok: false, error: 'failed_after_retries' };
+}
+
+// Fetch one base id and, if it is frozen at "Revision", follow the .rN chain.
+// Returns { ok, rec, rev } for a real manuscript, { invalid } past the end, or
+// { error } on a persistent failure.
+async function fetchResolved(baseId, revDelayMs) {
+  const base = await fetchStatusRetry(baseId, 2);
+  if (!base.ok) return base;
+  let data = base.data, rev = 0;
+  if (data.stage === REVISION_STAGE) {
+    const resolved = await resolveRevisionChain(baseId, data, revDelayMs);
+    data = resolved.data;
+    rev = resolved.rev;
+  }
+  const rec = { id: baseId, s: data.stage, ss: data.sub_stage };
+  if (data.doi && data.doi !== 'null') rec.doi = data.doi;
+  if (rev > 0) rec.rev = rev;
+  return { ok: true, rec: rec, rev: rev };
+}
+
 function parseManuscriptId(raw) {
   const m = String(raw || '').trim().toUpperCase().match(/^([A-Z]+)-(\d+)$/);
   if (!m) return null;
@@ -155,9 +185,10 @@ async function handleScanStream(req, res, query) {
     res.end(JSON.stringify({ error: 'invalid_start_id' }));
     return;
   }
-  const delayMs = Math.max(100, parseInt(query.get('delay'), 10) || 300);
+  const delayMs = Math.max(0, parseInt(query.get('delay'), 10) || 300);
   const threshold = Math.max(2, parseInt(query.get('threshold'), 10) || 6);
   const maxChecks = Math.max(10, parseInt(query.get('max'), 10) || 1500);
+  const concurrency = Math.max(1, Math.min(100, parseInt(query.get('concurrency'), 10) || 1));
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -174,43 +205,51 @@ async function handleScanStream(req, res, query) {
   let n = parsed.num;
   let checked = 0;
   const startedAt = new Date().toISOString();
+  const pad = (num) => `${parsed.prefix}-${String(num).padStart(parsed.width, '0')}`;
+  const revDelay = Math.min(delayMs, 150);
 
+  // Process the range in concurrent waves of up to `concurrency` IDs. Each wave
+  // is fetched in parallel, then its results are consumed strictly in ID order
+  // so the "stop after N consecutive invalid IDs" rule stays identical to the
+  // old serial scan — the parallelism only changes how fast the requests fire,
+  // never the termination logic. (concurrency === 1 is the old serial behavior.)
   while (checked < maxChecks && !stopped) {
-    const id = `${parsed.prefix}-${String(n).padStart(parsed.width, '0')}`;
-    const result = await fetchStatus(id);
-    checked++;
+    const batchSize = Math.min(concurrency, maxChecks - checked);
+    const nums = [];
+    for (let i = 0; i < batchSize; i++) nums.push(n + i);
 
-    if (result.ok) {
-      invalidStreak = 0;
-      let data = result.data, rev = 0;
-      if (data.stage === REVISION_STAGE) {
-        const resolved = await resolveRevisionChain(id, data, Math.min(delayMs, 200));
-        data = resolved.data;
-        rev = resolved.rev;
+    const batch = await Promise.all(nums.map(function (num) {
+      const id = pad(num);
+      return fetchResolved(id, revDelay).then(function (r) { return { id: id, r: r }; });
+    }));
+
+    let hitEnd = false;
+    for (let i = 0; i < batch.length; i++) {
+      const id = batch[i].id, result = batch[i].r;
+      checked++;
+      if (result.ok) {
+        invalidStreak = 0;
+        records.push(result.rec);
+        const via = result.rev > 0 ? `  (via .r${result.rev})` : '';
+        sseSend(res, 'log', { text: `${id}  ${stageTitle(result.rec.s, result.rec.ss)}${via}`, kind: result.rec.s === 7 ? 'r' : 'g' });
+      } else if (result.invalid) {
+        invalidStreak++;
+        gaps.push(id);
+        sseSend(res, 'log', { text: `${id}  invalid [${invalidStreak}/${threshold}]`, kind: 'x' });
+        if (invalidStreak >= threshold) {
+          sseSend(res, 'log', { text: `Confirmed end of range after ${threshold} consecutive invalid IDs.`, kind: 'x' });
+          hitEnd = true;
+          break;
+        }
+      } else {
+        sseSend(res, 'log', { text: `${id}  error (${result.error}) — skipped`, kind: 'x' });
       }
-      const rec = { id, s: data.stage, ss: data.sub_stage };
-      if (data.doi && data.doi !== 'null') rec.doi = data.doi;
-      if (rev > 0) rec.rev = rev;
-      records.push(rec);
-      const via = rev > 0 ? `  (via .r${rev})` : '';
-      sseSend(res, 'log', { text: `${id}  ${stageTitle(rec.s, rec.ss)}${via}`, kind: rec.s === 7 ? 'r' : 'g' });
-    } else if (result.invalid) {
-      invalidStreak++;
-      gaps.push(id);
-      sseSend(res, 'log', { text: `${id}  invalid [${invalidStreak}/${threshold}]`, kind: 'x' });
-      if (invalidStreak >= threshold) {
-        sseSend(res, 'log', { text: `Confirmed end of range after ${threshold} consecutive invalid IDs.`, kind: 'x' });
-        n++;
-        break;
-      }
-    } else {
-      sseSend(res, 'log', { text: `${id}  error (${result.error}) — skipped`, kind: 'x' });
     }
 
-    n++;
-    sseSend(res, 'progress', { checked, current: id });
-    if (invalidStreak >= threshold) break;
-    await sleep(delayMs);
+    n += batchSize;
+    sseSend(res, 'progress', { checked: checked, current: pad(n - 1) });
+    if (hitEnd || stopped) break;
+    if (delayMs) await sleep(delayMs);
   }
 
   const midGaps = invalidStreak >= threshold ? gaps.slice(0, gaps.length - invalidStreak) : gaps;
@@ -225,6 +264,7 @@ async function handleScanStream(req, res, query) {
     width: parsed.width,
     delayMs,
     threshold,
+    concurrency,
     totalChecked: checked,
     stopped,
     records,
